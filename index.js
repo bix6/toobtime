@@ -4,13 +4,50 @@ let spotsGlobal = null;
 let tableListGlobal = [];
 const MAX_COLS_GLOBAL = 6;
 
+// Updates the color score
+function updateScore(index, data) {
+    let score = 0;
+
+    for (let i = 0; i < data.length; i++) {
+            score += data[i].score;
+    }
+
+    if (spotsGlobal[index]["score"]) {
+        spotsGlobal[index]["score"] += score;
+    }
+    else {
+        spotsGlobal[index]["score"] = score;
+    }
+}
+
+// Create a table string with the fetched surfline data
+function createTableString(data, keyNameData) {
+    if (keyNameData === "waveData") {
+        let waveString = "<tr>";
+
+        for (let i = 0; i < data.length; i++) {
+            waveString += `<td class="score-${data[i].score}">${data[i].waveMin}-${data[i].waveMax}</td>`;
+        }
+    
+        return waveString += "</tr>";
+    }
+}
+
+// store the fetched surfline data
+function storeData(index, data, keyNameData, keyNameString) {
+    spotsGlobal[index][keyNameData] = data;
+    spotsGlobal[index][keyNameString] = createTableString(data, keyNameData);
+    updateScore(index, data);
+    return true;
+}
+
 // get the pertinent wave data from the response payload
 function getWaveData(responseJson, startIndex) {
     let waveData = [];
 
     for (let i = startIndex; i < startIndex + MAX_COLS_GLOBAL; i++) {
         let waveDataLocal = {
-            waveScore: responseJson.data.wave[i].surf.optimalScore,
+            score: responseJson.data.wave[i].surf.optimalScore,
             waveMin: Math.floor(responseJson.data.wave[i].surf.min),
             waveMax: Math.ceil(responseJson.data.wave[i].surf.max)
         }
@@ -63,7 +100,8 @@ function fetchSurflineData(startIndex) {
             fetch(URL_WAVE)
             .then(response => checkFetchResponse(response))
             .then(responseJson => getWaveData(responseJson, startIndex))
-            .then(waveData => console.log(waveData))
+            .then(waveData => storeData(i, waveData, "waveData", "waveString"))
+            .then(dataStored => console.log(spotsGlobal))
             .catch(error => alert(error.message)); // TODO error handling
 
             // fetch(URL_WIND)
@@ -200,7 +238,6 @@ function checkSpots() {
 // Ensure user selects at least one required checkbox
 // Thank you: https://stackoverflow.com/questions/6218494/using-the-html5-required-attribute-for-a-group-of-checkboxes
 function validateUserInput() {
-    console.log('user input: ' + $(".required-cb :checkbox:checked").length);
     return ($(".required-cb :checkbox:checked").length > 0);
 }
 
