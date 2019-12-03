@@ -22,15 +22,19 @@ function updateScore(index, data) {
 
 // Create a table string with the fetched surfline data
 function createTableString(data, keyNameData) {
-    if (keyNameData === "waveData") {
-        let waveString = "<tr>";
+    let tableString = "<tr>";
 
-        for (let i = 0; i < data.length; i++) {
-            waveString += `<td class="score-${data[i].score}">${data[i].waveMin}-${data[i].waveMax}</td>`;
+    for (let i = 0; i < data.length; i++) {
+        if (keyNameData === "waveData") {
+            tableString += `<td class="score-${data[i].score}">${data[i].waveMin}-${data[i].waveMax}</td>`;
         }
-    
-        return waveString += "</tr>";
+        else if (keyNameData === "windData") {
+            tableString += `<td class="score-${data[i].score}">${data[i].windSpeed}-`+
+                `${data[i].windGust} ${data[i].windDirection}&#176;</td>`;
+        }
     }
+
+    return tableString += "</tr>";
 }
 
 // store the fetched surfline data
@@ -41,21 +45,33 @@ function storeData(index, data, keyNameData, keyNameString) {
     return true;
 }
 
-// get the pertinent wave data from the response payload
-function getWaveData(responseJson, startIndex) {
-    let waveData = [];
+// get the data from the response payload
+function getData(responseJson, startIndex, keyNameData) {
+    let data = [];
 
     for (let i = startIndex; i < startIndex + MAX_COLS_GLOBAL; i++) {
-        let waveDataLocal = {
-            score: responseJson.data.wave[i].surf.optimalScore,
-            waveMin: Math.floor(responseJson.data.wave[i].surf.min),
-            waveMax: Math.ceil(responseJson.data.wave[i].surf.max)
+        let dataLocal = {};
+
+        if (keyNameData === "waveData") {
+            dataLocal = {
+                score: responseJson.data.wave[i].surf.optimalScore,
+                waveMin: Math.floor(responseJson.data.wave[i].surf.min),
+                waveMax: Math.ceil(responseJson.data.wave[i].surf.max)
+            }
         }
-    
-        waveData.push(waveDataLocal);
+        else if (keyNameData === "windData") {
+            dataLocal = {
+                windSpeed: Math.round(responseJson.data.wind[i].speed),
+                windDirection: Math.round(responseJson.data.wind[i].direction),
+                windGust: Math.round(responseJson.data.wind[i].gust),
+                score: responseJson.data.wind[i].optimalScore
+            }
+        }
+
+        data.push(dataLocal);
     }
 
-    return waveData;
+    return data;
 }
 
 // Check the fetched response
@@ -99,12 +115,18 @@ function fetchSurflineData(startIndex) {
 
             fetch(URL_WAVE)
             .then(response => checkFetchResponse(response))
-            .then(responseJson => getWaveData(responseJson, startIndex))
+            .then(responseJson => getData(responseJson, startIndex, "waveData"))
             .then(waveData => storeData(i, waveData, "waveData", "waveString"))
-            .then(dataStored => console.log(spotsGlobal))
+            .then(dataStored => {
+                console.log(dataStored);
+                fetch(URL_WIND)
+                .then(response => checkFetchResponse(response))
+                .then(responseJson => getData(responseJson, startIndex, "windData"))
+                .then(windData => storeData(i, windData, "windData", "windString"))
+                .then(dataStored => console.log(spotsGlobal))
+                .catch(error => alert(error.message)) // TODO error handling
+            })
             .catch(error => alert(error.message)); // TODO error handling
-
-            // fetch(URL_WIND)
         }
     }
 }
