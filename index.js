@@ -1,25 +1,14 @@
 "use strict";
 
 let spotsGlobal = null;
-let tableGlobal = "";
+let tableListGlobal = [];
 let maxColsGlobal = 6;
-let startIndexGlobal = -1;
-
-// Get start index for data based on current time
-function getStartIndex(responseJson) {
-    let dateNow = new Date(); 
-    startIndexGlobal = dateNow.getHours() === 0 ? 0 : dateNow.getHours() - 1;
-    console.log(startIndexGlobal);
-}
 
 // Create wave row for the table
 function createWaveRow(i, responseJson) {
     console.log("create wave row");
 
-    let startIndex = getStartIndex(responseJson); 
     let waveString = "<tr><th>Wave Height (ft.)</th>";
-
-
 }
 
 // Format parameters for query string
@@ -53,6 +42,25 @@ function fetchWaveData(i) {
         })
         .then(responseJson => createWaveRow(i, responseJson))
         .catch(error => alert(error.message)); // TODO error handling
+}
+
+function createTimeRow(startIndex) {
+    let timeString = "<tr><th>Time</th>";
+    let dateNow = new Date();
+
+    for (let i = startIndex; i < startIndex + maxColsGlobal; i++) {
+        dateNow.setHours(i);
+        timeString += `<th data-rank="-1">${dateNow.toLocaleString('default', {hour: "numeric"})}</th>`;
+    }
+
+    timeString += "</tr>";
+    tableListGlobal.push(timeString);
+}
+
+// Get start index for data based on current time
+function getStartIndex() {
+    let dateNow = new Date(); 
+    return dateNow.getHours() === 0 ? 0 : dateNow.getHours() - 1;
 }
 
 // Check which spots are checked and store information
@@ -175,7 +183,8 @@ function formSubmitted() {
         if (validateUserInput()) {
             checkSpots();
 
-            // TODO add in time row
+            const startIndex = getStartIndex();
+            createTimeRow(startIndex);
 
             for (let i = 0; i < spotsGlobal.length; i++) {
                 if (spotsGlobal[i].checked) {
