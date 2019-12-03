@@ -1,10 +1,48 @@
 "use strict";
 
-let dataGlobal = null;
+let spotsGlobal = null;
+let tableGlobal = "";
+
+// Format parameters for query string
+function formatParams(params) {
+    let paramList = Object.keys(params).map(key =>
+        `${encodeURIComponent(key)}` +
+        `=${encodeURIComponent(params[key])}`);
+    return paramList.join("&")
+}
+
+// Fetch wave data from Surfline
+function fetchWaveData(i) {
+    console.log('fetch wave data');
+    const ENDPOINT = "https://services.surfline.com/kbyg/spots/forecasts/wave";
+
+    const PARAMS = {
+        "spotId": spotsGlobal[i].id, // from surfline URL
+        "days": 1, // max 6 w/o token, 17 w/ token
+        "intervalHours": 1, // min 1
+        "maxHeights": false, // true removes min & optimal values
+        // "accesstoken": "string" // for premium data
+    };
+
+    const URL = ENDPOINT + "?" + formatParams(PARAMS);
+    console.log(URL);
+
+    fetch(URL)
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            }
+            throw new Error(response.statusText);
+        })
+        .then(responseJson => {
+            console.log(responseJson);
+        })
+        .catch(error => alert(error.message)); // TODO error handling
+}
 
 // Check which spots are checked and store information
 function checkSpots() {
-    dataGlobal = [
+    spotsGlobal = [
         {
             name: "Ocean Beach",
             id: "5842041f4e65fad6a77087f8",
@@ -121,6 +159,12 @@ function formSubmitted() {
 
         if (validateUserInput()) {
             checkSpots();
+
+            for (let i = 0; i < spotsGlobal.length; i++) {
+                if (spotsGlobal[i].checked) {
+                    fetchWaveData(i);
+                }
+            }
         }
         else {
             // TODO handle this without an alert?
