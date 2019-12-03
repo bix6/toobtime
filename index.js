@@ -2,13 +2,31 @@
 
 let spotsGlobal = null;
 let tableListGlobal = [];
-let maxColsGlobal = 6;
+const MAX_COLS_GLOBAL = 6;
 
-// Create wave row for the table
-function createWaveRow(i, responseJson) {
-    console.log("create wave row");
+// get the pertinent wave data from the response payload
+function getWaveData(responseJson, startIndex) {
+    let waveData = [];
 
-    let waveString = "<tr><th>Wave Height (ft.)</th>";
+    for (let i = startIndex; i < startIndex + MAX_COLS_GLOBAL; i++) {
+        let waveDataLocal = {
+            waveScore: responseJson.data.wave[i].surf.optimalScore,
+            waveMin: Math.floor(responseJson.data.wave[i].surf.min),
+            waveMax: Math.ceil(responseJson.data.wave[i].surf.max)
+        }
+    
+        waveData.push(waveDataLocal);
+    }
+
+    return waveData;
+}
+
+// Check the fetched response
+function checkFetchResponse(response) {
+    if (response.ok) {
+        return response.json();
+    }
+    throw new Error(response.statusText);
 }
 
 // Format parameters for query string
@@ -20,37 +38,47 @@ function formatParams(params) {
 }
 
 // Fetch wave data from Surfline
-function fetchWaveData(i) {
-    const ENDPOINT = "https://services.surfline.com/kbyg/spots/forecasts/wave";
+function fetchSurflineData(startIndex) {
+    const ENDPOINT_WAVE = "https://services.surfline.com/kbyg/spots/forecasts/wave";
+    const ENDPOINT_WIND = "https://services.surfline.com/kbyg/spots/forecasts/wind";
 
-    const PARAMS = {
-        "spotId": spotsGlobal[i].id, // from surfline URL
-        "days": 1, // max 6 w/o token, 17 w/ token
+    let params = {
+        "spotId": null, // from surfline URL
+        "days": 2, // max 6 w/o token, 17 w/ token
         "intervalHours": 1, // min 1
         "maxHeights": false, // true removes min & optimal values
         // "accesstoken": "string" // for premium data
     };
 
-    const URL = ENDPOINT + "?" + formatParams(PARAMS);
+    // Loop through all spots. If checked, fetch wave and wind data.
+    for (let i = 0; i < spotsGlobal.length; i++) {
+        if (spotsGlobal[i].checked) {
+            params.spotId = spotsGlobal[i].id;
+            
+            const PARAM_STRING = formatParams(params);
+        
+            const URL_WAVE = ENDPOINT_WAVE + "?" + PARAM_STRING;
+            const URL_WIND = ENDPOINT_WIND + "?" + PARAM_STRING;
 
-    fetch(URL)
-        .then(response => {
-            if (response.ok) {
-                return response.json();
-            }
-            throw new Error(response.statusText);
-        })
-        .then(responseJson => createWaveRow(i, responseJson))
-        .catch(error => alert(error.message)); // TODO error handling
+            fetch(URL_WAVE)
+            .then(response => checkFetchResponse(response))
+            .then(responseJson => getWaveData(responseJson, startIndex))
+            .then(waveData => console.log(waveData))
+            .catch(error => alert(error.message)); // TODO error handling
+
+            // fetch(URL_WIND)
+        }
+    }
 }
 
+// Create the time row for the table
 function createTimeRow(startIndex) {
     let timeString = "<tr><th>Time</th>";
     let dateNow = new Date();
 
-    for (let i = startIndex; i < startIndex + maxColsGlobal; i++) {
+    for (let i = startIndex; i < startIndex + MAX_COLS_GLOBAL; i++) {
         dateNow.setHours(i);
-        timeString += `<th data-rank="-1">${dateNow.toLocaleString('default', {hour: "numeric"})}</th>`;
+        timeString += `<th data-order="-1">${dateNow.toLocaleString('default', {hour: "numeric"})}</th>`;
     }
 
     timeString += "</tr>";
@@ -172,6 +200,7 @@ function checkSpots() {
 // Ensure user selects at least one required checkbox
 // Thank you: https://stackoverflow.com/questions/6218494/using-the-html5-required-attribute-for-a-group-of-checkboxes
 function validateUserInput() {
+    console.log('user input: ' + $(".required-cb :checkbox:checked").length);
     return ($(".required-cb :checkbox:checked").length > 0);
 }
 
@@ -186,11 +215,7 @@ function formSubmitted() {
             const startIndex = getStartIndex();
             createTimeRow(startIndex);
 
-            for (let i = 0; i < spotsGlobal.length; i++) {
-                if (spotsGlobal[i].checked) {
-                    fetchWaveData(i);
-                }
-            }
+            fetchSurflineData(startIndex);
         }
         else {
             // TODO handle this without an alert?
