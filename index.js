@@ -2,6 +2,25 @@
 
 let spotsGlobal = null;
 let tableGlobal = "";
+let maxColsGlobal = 6;
+let startIndexGlobal = -1;
+
+// Get start index for data based on current time
+function getStartIndex(responseJson) {
+    let dateNow = new Date(); 
+    startIndexGlobal = dateNow.getHours() === 0 ? 0 : dateNow.getHours() - 1;
+    console.log(startIndexGlobal);
+}
+
+// Create wave row for the table
+function createWaveRow(i, responseJson) {
+    console.log("create wave row");
+
+    let startIndex = getStartIndex(responseJson); 
+    let waveString = "<tr><th>Wave Height (ft.)</th>";
+
+
+}
 
 // Format parameters for query string
 function formatParams(params) {
@@ -13,7 +32,6 @@ function formatParams(params) {
 
 // Fetch wave data from Surfline
 function fetchWaveData(i) {
-    console.log('fetch wave data');
     const ENDPOINT = "https://services.surfline.com/kbyg/spots/forecasts/wave";
 
     const PARAMS = {
@@ -25,7 +43,6 @@ function fetchWaveData(i) {
     };
 
     const URL = ENDPOINT + "?" + formatParams(PARAMS);
-    console.log(URL);
 
     fetch(URL)
         .then(response => {
@@ -34,9 +51,7 @@ function fetchWaveData(i) {
             }
             throw new Error(response.statusText);
         })
-        .then(responseJson => {
-            console.log(responseJson);
-        })
+        .then(responseJson => createWaveRow(i, responseJson))
         .catch(error => alert(error.message)); // TODO error handling
 }
 
@@ -159,6 +174,8 @@ function formSubmitted() {
 
         if (validateUserInput()) {
             checkSpots();
+
+            // TODO add in time row
 
             for (let i = 0; i < spotsGlobal.length; i++) {
                 if (spotsGlobal[i].checked) {
