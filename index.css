@@ -14,3 +14,25 @@ html {
 .error-p {
     color: red;
 }
+
+.color-key-section span {
+    display: inline-block;
+    width: 100px;
+    height: 20px;
+    border: 1px solid black;
+}
+
+/* Suboptimal */
+.score-0 {
+    background-color: white;
+}
+
+/* Good */
+.score-1 {
+    background-color: lightskyblue;
+}
+
+/* Optimal */
+.score-2 {
+    background-color: orange;
+}

@@ -115,8 +115,8 @@ function formatParams(params) {
     return paramList.join("&")
 }
 
-// Fetch wave data from Surfline
-function fetchSurflineData(startIndex, lastSpotIndex) {
+// Fetch surf data from Surfline
+function fetchSurfData(startIndex, lastSpotIndex) {
     const ENDPOINT_WAVE = "https://services.surfline.com/kbyg/spots/forecasts/wave";
     const ENDPOINT_WIND = "https://services.surfline.com/kbyg/spots/forecasts/wind";
 
@@ -337,7 +337,7 @@ function formSubmitted() {
             const startIndex = getStartIndex();
             createTimeString(startIndex);
 
-            fetchSurflineData(startIndex, lastSpotIndex);
+            fetchSurfData(startIndex, lastSpotIndex);
         }
         else {
             displayError("Please select a valid spot.");
