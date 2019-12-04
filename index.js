@@ -2,6 +2,7 @@
 
 let spotsGlobal = null;
 let tableListGlobal = [];
+let buoyDataGlobal = {};
 const MAX_COLS_GLOBAL = 6;
 
 // Display the score
@@ -67,13 +68,13 @@ function createTableString(data, keyNameData) {
     for (let i = 0; i < data.length; i++) {
         if (keyNameData === "waveData") {
             if (i === 0) {
-                tableString += "<th>Waves (ft.)</th>";
+                tableString += "<th>Waves (ft)</th>";
             }
             tableString += `<td class="score-${data[i].score}">${data[i].waveMin}-${data[i].waveMax}</td>`;
         }
         else if (keyNameData === "windData") {
             if (i === 0) {
-                tableString += "<th>Wind (kts.)</th>";
+                tableString += "<th>Wind (kn)</th>";
             }
             tableString += `<td class="score-${data[i].score}">${data[i].windSpeed}-`+
                 `${data[i].windGust} ${data[i].windDirection}&#176;</td>`;
@@ -90,8 +91,8 @@ function storeData(index, data, keyNameData, keyNameString) {
     updateScore(index, data);
 }
 
-// Get the data from the response payload
-function getData(responseJson, startIndex, keyNameData) {
+// Extract the data from the response payload
+function extractData(responseJson, startIndex, keyNameData) {
     let data = [];
 
     for (let i = startIndex; i < startIndex + MAX_COLS_GLOBAL; i++) {
@@ -160,14 +161,14 @@ function fetchSurfData(startIndex) {
 
             fetch(URL_WAVE)
             .then(response => checkFetchResponse(response))
-            .then(responseJson => getData(responseJson, startIndex, "waveData"))
+            .then(responseJson => extractData(responseJson, startIndex, "waveData"))
             .then(waveData => storeData(i, waveData, "waveData", "waveString"))
             .then(unusedVar => { 
                 fetch(URL_WIND)
                 .then(response => checkFetchResponse(response))
-                .then(responseJson => getData(responseJson, startIndex, "windData"))
+                .then(responseJson => extractData(responseJson, startIndex, "windData"))
                 .then(windData => storeData(i, windData, "windData", "windString"))
-                .catch(error => displayError(error.message))
+                .catch(error => displayError(error.message));
             })
             .catch(error => displayError(error.message));
         }
@@ -306,6 +307,65 @@ function checkSpots() {
     ];
 }
 
+// Display the buoy data
+function displayBuoyData() {
+    $(".buoy-ul").empty();
+
+    let buoyContent = `<li><span class="buoy-span">Water Level:</span> ${buoyDataGlobal.water_level} ft above MLLW</li>` +
+        `<li><span class="buoy-span">Water Temp:</span> ${buoyDataGlobal.water_temperature} &#176;F</li>` +
+        `<li><span class="buoy-span">Barometric Pressure:</span> ${buoyDataGlobal.air_pressure} mb</li>`;
+
+    $(".buoy-ul").append(buoyContent);
+}
+
+// Store the fetched buoy data from NOAA
+function storeBuoyData(responseJson, name) {
+    buoyDataGlobal[name] = Math.round(responseJson.data[0].v * 10) / 10;
+    console.log(buoyDataGlobal);
+}
+
+// Fetch buoy data from NOAA
+function fetchBuoyData() {
+    buoyDataGlobal = {}; // reset the buoy data
+
+    const ENDPOINT_NOAA = "https://tidesandcurrents.noaa.gov/api/datagetter";
+
+    let params = {
+        station: 9415020, // Point Reyes: 9415020, Monterey: 9413450
+        date: "latest",
+        product: "water_level",
+        datum: "MLLW",
+        units: "english",
+        time_zone: "lst",
+        format: "json",
+        application: "student",
+    }
+
+    const URL_WATER_LEVEL = ENDPOINT_NOAA + "?" + formatParams(params);
+    params.product = "water_temperature";
+    const URL_WATER_TEMPERATURE = ENDPOINT_NOAA + "?" + formatParams(params);
+    params.product = "air_pressure";
+    const URL_AIR_PRESSURE = ENDPOINT_NOAA + "?" + formatParams(params);
+
+    fetch(URL_WATER_LEVEL)
+    .then(response => checkFetchResponse(response))
+    .then(responseJson => storeBuoyData(responseJson, "water_level"))
+    .then(unusedVar => {
+        fetch(URL_WATER_TEMPERATURE)
+        .then(response => checkFetchResponse(response))
+        .then(responseJson => storeBuoyData(responseJson, "water_temperature"))
+        .then(unusedVar => {
+            fetch(URL_AIR_PRESSURE)
+            .then(response => checkFetchResponse(response))
+            .then(responseJson => storeBuoyData(responseJson, "air_pressure"))
+            .then(unusedVar => displayBuoyData())
+            .catch(error => displayError(error.message));  
+        })
+        .catch(error => displayError(error.message)); 
+    })
+    .catch(error => displayError(error.message));
+}
+
 // Clear error message
 function clearError() {
     $(".error-p").empty();
@@ -338,6 +398,8 @@ function formSubmitted() {
         if (validateUserInput()) {
             clearError(); // clear error if it exists
             tableListGlobal = []; // reset the table list
+
+            fetchBuoyData();
 
             checkSpots(); 
 
