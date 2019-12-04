@@ -1,5 +1,10 @@
 "use strict";
 
+
+// TODO loading indicator
+
+
+
 let spotsGlobal = null;
 let tableListGlobal = [];
 let buoyDataGlobal = {};
@@ -82,19 +87,27 @@ function createTableString(data, keyNameData) {
     return tableString += "</tr>";
 }
 
+// Find next checked index
+function findNextCheckedIndex(curIndex) {
+    for (let i = curIndex; i < spotsGlobal.length; i++) {
+        if (spotsGlobal[i].checked) {
+            return i;
+        }
+    }
+}
+
 // Check the current fetch index
 // Stop and display data if all spot's have been retrieved
 // Othwerise, recursively fetch the next spot's data
 function checkFetchIndex(startIndex, lastSpotIndex, curIndex) {
     if (curIndex === lastSpotIndex || curIndex === spotsGlobal.length) {
-        console.log("final");
         appendTableRows();
         displayTable();
         displayScore();
     }
     else {
-        console.log(curIndex);
-        fetchSurfData(startIndex, lastSpotIndex, ++curIndex);
+        curIndex = findNextCheckedIndex(curIndex + 1);
+        fetchSurfData(startIndex, lastSpotIndex, curIndex);
     }
 }
 
@@ -163,29 +176,26 @@ function fetchSurfData(startIndex, lastSpotIndex, curIndex) {
         // "accesstoken": "string" // for premium data
     };
 
-    // If spot checked, fetch wave and wind data.
-    if (spotsGlobal[curIndex].checked) {
-        params.spotId = spotsGlobal[curIndex].id;
-        
-        const PARAM_STRING = formatParams(params);
-    
-        const URL_WAVE = ENDPOINT_WAVE + "?" + PARAM_STRING;
-        const URL_WIND = ENDPOINT_WIND + "?" + PARAM_STRING;
+    params.spotId = spotsGlobal[curIndex].id;
 
-        fetch(URL_WAVE)
+    const PARAM_STRING = formatParams(params);
+
+    const URL_WAVE = ENDPOINT_WAVE + "?" + PARAM_STRING;
+    const URL_WIND = ENDPOINT_WIND + "?" + PARAM_STRING;
+
+    fetch(URL_WAVE)
+    .then(response => checkFetchResponse(response))
+    .then(responseJson => extractData(responseJson, startIndex, "waveData"))
+    .then(waveData => storeData(curIndex, waveData, "waveData", "waveString"))
+    .then(function() { 
+        fetch(URL_WIND)
         .then(response => checkFetchResponse(response))
-        .then(responseJson => extractData(responseJson, startIndex, "waveData"))
-        .then(waveData => storeData(curIndex, waveData, "waveData", "waveString"))
-        .then(function() { 
-            fetch(URL_WIND)
-            .then(response => checkFetchResponse(response))
-            .then(responseJson => extractData(responseJson, startIndex, "windData"))
-            .then(windData => storeData(curIndex, windData, "windData", "windString"))
-            .then(function() {checkFetchIndex(startIndex, lastSpotIndex, curIndex)}) // recursively fetch
-            .catch(error => displayError(error.message));
-        })
+        .then(responseJson => extractData(responseJson, startIndex, "windData"))
+        .then(windData => storeData(curIndex, windData, "windData", "windString"))
+        .then(function() {checkFetchIndex(startIndex, lastSpotIndex, curIndex)}) // recursively fetch 
         .catch(error => displayError(error.message));
-    }
+    })
+    .catch(error => displayError(error.message));
 }
 
 // Create the time string and push it to the table
@@ -426,7 +436,7 @@ function formSubmitted() {
             const startIndex = getStartIndex();
             createTimeString(startIndex);
 
-            fetchSurfData(startIndex, lastSpotindex, 0); // curIndex = 0
+            fetchSurfData(startIndex, lastSpotindex, findNextCheckedIndex(0));
         }
         else {
             displayError("Please select a valid spot.");
