@@ -323,6 +323,12 @@ function validateUserInput() {
     return ($(".required-cb :checkbox:checked").length > 0);
 }
 
+function newSearch() {
+    $(".new-search-button").on("click", function(event) {
+       $("main").addClass("hidden"); 
+    })
+}
+
 // Handle user form submission
 function formSubmitted() {
     $(".user-input-form").on("submit", function(event) {
@@ -358,6 +364,7 @@ function toggleCheckbox() {
 function main() {
     toggleCheckbox();
     formSubmitted();
+    newSearch();
 }
 
 $(main);
