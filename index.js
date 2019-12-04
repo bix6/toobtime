@@ -4,11 +4,17 @@ let spotsGlobal = null;
 let tableListGlobal = [];
 const MAX_COLS_GLOBAL = 6;
 
+function displayTable () {
+    $(".display-table").empty();
+    $(".display-table").html(tableListGlobal.join(""));
+    $(".display-main").removeClass("hidden");
+}
+
 // Append the spot strings to the global table
 function appendTableRows() {
     for (let i = 0; i < spotsGlobal.length; i++) {
         if (spotsGlobal[i].checked) {
-            tableListGlobal.push(`<tr class="name-row">${spotsGlobal[i].name}</tr>`);
+            tableListGlobal.push(`<tr class="name-row"><th>${spotsGlobal[i].name}</th></tr>`);
             tableListGlobal.push(spotsGlobal[i].waveString);
             tableListGlobal.push(spotsGlobal[i].windString);
         }
@@ -147,6 +153,7 @@ function fetchSurflineData(startIndex) {
 
     // TODO how can I do this without a timer?
     window.setTimeout(appendTableRows, 500);
+    window.setTimeout(displayTable, 500);
 }
 
 // Create the time row for the table
