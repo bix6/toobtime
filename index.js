@@ -4,6 +4,18 @@ let spotsGlobal = null;
 let tableListGlobal = [];
 const MAX_COLS_GLOBAL = 6;
 
+// Append the spot strings to the global table
+function appendTableRows() {
+    for (let i = 0; i < spotsGlobal.length; i++) {
+        if (spotsGlobal[i].checked) {
+            tableListGlobal.push(`<tr class="name-row">${spotsGlobal[i].name}</tr>`);
+            tableListGlobal.push(spotsGlobal[i].waveString);
+            tableListGlobal.push(spotsGlobal[i].windString);
+        }
+    }
+    console.log(tableListGlobal);
+}
+
 // Updates the color score
 function updateScore(index, data) {
     let score = 0;
@@ -26,9 +38,15 @@ function createTableString(data, keyNameData) {
 
     for (let i = 0; i < data.length; i++) {
         if (keyNameData === "waveData") {
+            if (i === 0) {
+                tableString += "<th>Waves ft.</th>";
+            }
             tableString += `<td class="score-${data[i].score}">${data[i].waveMin}-${data[i].waveMax}</td>`;
         }
         else if (keyNameData === "windData") {
+            if (i === 0) {
+                tableString += "<th>Wind kts.</th>";
+            }
             tableString += `<td class="score-${data[i].score}">${data[i].windSpeed}-`+
                 `${data[i].windGust} ${data[i].windDirection}&#176;</td>`;
         }
@@ -42,7 +60,6 @@ function storeData(index, data, keyNameData, keyNameString) {
     spotsGlobal[index][keyNameData] = data;
     spotsGlobal[index][keyNameString] = createTableString(data, keyNameData);
     updateScore(index, data);
-    return true;
 }
 
 // get the data from the response payload
@@ -117,18 +134,19 @@ function fetchSurflineData(startIndex) {
             .then(response => checkFetchResponse(response))
             .then(responseJson => getData(responseJson, startIndex, "waveData"))
             .then(waveData => storeData(i, waveData, "waveData", "waveString"))
-            .then(dataStored => {
-                console.log(dataStored);
+            .then(unusedVar => { 
                 fetch(URL_WIND)
                 .then(response => checkFetchResponse(response))
                 .then(responseJson => getData(responseJson, startIndex, "windData"))
                 .then(windData => storeData(i, windData, "windData", "windString"))
-                .then(dataStored => console.log(spotsGlobal))
                 .catch(error => alert(error.message)) // TODO error handling
             })
             .catch(error => alert(error.message)); // TODO error handling
         }
     }
+
+    // TODO how can I do this without a timer?
+    window.setTimeout(appendTableRows, 500);
 }
 
 // Create the time row for the table
