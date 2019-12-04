@@ -33,3 +33,7 @@ html {
 .score-2 {
     background-color: orange;
 }
+
+.name-row th{
+    border: 1px solid black;
+}

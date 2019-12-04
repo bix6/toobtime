@@ -136,7 +136,7 @@ function formatParams(params) {
 }
 
 // Fetch surf data from Surfline
-function fetchSurfData(startIndex, lastSpotIndex) {
+function fetchSurfData(startIndex) {
     const ENDPOINT_WAVE = "https://services.surfline.com/kbyg/spots/forecasts/wave";
     const ENDPOINT_WIND = "https://services.surfline.com/kbyg/spots/forecasts/wind";
 
@@ -167,22 +167,17 @@ function fetchSurfData(startIndex, lastSpotIndex) {
                 .then(response => checkFetchResponse(response))
                 .then(responseJson => getData(responseJson, startIndex, "windData"))
                 .then(windData => storeData(i, windData, "windData", "windString"))
-                .then(unusedVar => {
-                    if (i === lastSpotIndex) {
-                        appendTableRows();
-                        displayTable();
-                        displayScore();
-                    }
-                })
                 .catch(error => displayError(error.message))
             })
             .catch(error => displayError(error.message));
         }
     }
 
-    // TODO how can I do this without a timer?
-    // window.setTimeout(appendTableRows, 500);
-    // window.setTimeout(displayTable, 500);
+    // Wait to retrieve all data
+    // TODO Otherwise I'd need to recursively call my fetches
+    window.setTimeout(appendTableRows, 500);
+    window.setTimeout(displayTable, 500);
+    window.setTimeout(displayScore, 500);
 }
 
 // Create the time string and push it to the table
@@ -205,20 +200,7 @@ function getStartIndex() {
     return dateNow.getHours() === 0 ? 0 : dateNow.getHours() - 1;
 }
 
-// Find the index of the last checked spot
-function findLastChecked() {
-    let index = 0;
-
-    for (let i = 0; i < spotsGlobal.length; i++) {
-        if (spotsGlobal[i].checked) {
-            index = i;
-        }
-    }
-
-    return index;
-}
-
-// Check which spots are checked, store information in spotsGlobal and return findLastChecked
+// Check which spots are checked and store information in spotsGlobal
 function checkSpots() {
     spotsGlobal = [
         {
@@ -322,8 +304,6 @@ function checkSpots() {
             checked: $("#hook-cb").is(":checked")
         },
     ];
-
-    return findLastChecked();
 }
 
 // Clear error message
@@ -359,12 +339,12 @@ function formSubmitted() {
             clearError(); // clear error if it exists
             tableListGlobal = []; // reset the table list
 
-            const lastSpotIndex = checkSpots(); 
+            checkSpots(); 
 
             const startIndex = getStartIndex();
             createTimeString(startIndex);
 
-            fetchSurfData(startIndex, lastSpotIndex);
+            fetchSurfData(startIndex);
         }
         else {
             displayError("Please select a valid spot.");
