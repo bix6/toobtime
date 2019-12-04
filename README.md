@@ -6,7 +6,7 @@
 
 ### About
 
-Surf Report for a portion of the Golden California Coast. Enable users to quickly compare a variety of factors across multiple spots with eas.
+Customizable surf report to quickly compare spots and locate the best waves with ease.
 
 ### Technology
 
