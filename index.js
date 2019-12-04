@@ -175,9 +175,9 @@ function fetchSurfData(startIndex) {
 
     // Wait to retrieve all data
     // TODO Otherwise I'd need to recursively call my fetches
-    window.setTimeout(appendTableRows, 500);
-    window.setTimeout(displayTable, 500);
-    window.setTimeout(displayScore, 500);
+    window.setTimeout(appendTableRows, 1000);
+    window.setTimeout(displayTable, 1000);
+    window.setTimeout(displayScore, 1000);
 }
 
 // Create the time string and push it to the table
