@@ -4,6 +4,26 @@ let spotsGlobal = null;
 let tableListGlobal = [];
 const MAX_COLS_GLOBAL = 6;
 
+// Display the score
+function displayScore () {
+    $(".score-ol").empty();
+    let spotsLocal = spotsGlobal.slice();
+
+    // Sort in descending order
+    spotsLocal.sort(function(a, b) {
+        const aScore = a.score ? a.score : 0;
+        const bScore = b.score ? b.score : 0;
+        return bScore - aScore;
+    });
+
+    for (let i = 0; i < 3; i++) {
+        if (spotsLocal[i].checked) {
+            let scoreString = `<li>${spotsLocal[i].name} (${spotsLocal[i].score})</li>`;
+            $(".score-ol").append(scoreString);
+        }
+    }
+}
+
 // Display the main table
 function displayTable () {
     $(".display-table").empty();
@@ -47,13 +67,13 @@ function createTableString(data, keyNameData) {
     for (let i = 0; i < data.length; i++) {
         if (keyNameData === "waveData") {
             if (i === 0) {
-                tableString += "<th>Waves ft.</th>";
+                tableString += "<th>Waves (ft.)</th>";
             }
             tableString += `<td class="score-${data[i].score}">${data[i].waveMin}-${data[i].waveMax}</td>`;
         }
         else if (keyNameData === "windData") {
             if (i === 0) {
-                tableString += "<th>Wind kts.</th>";
+                tableString += "<th>Wind (kts.)</th>";
             }
             tableString += `<td class="score-${data[i].score}">${data[i].windSpeed}-`+
                 `${data[i].windGust} ${data[i].windDirection}&#176;</td>`;
@@ -151,6 +171,7 @@ function fetchSurfData(startIndex, lastSpotIndex) {
                     if (i === lastSpotIndex) {
                         appendTableRows();
                         displayTable();
+                        displayScore();
                     }
                 })
                 .catch(error => displayError(error.message))

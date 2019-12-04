@@ -15,10 +15,7 @@ html {
     color: red;
 }
 
-.color-key-section span {
-    display: inline-block;
-    width: 100px;
-    height: 20px;
+.color-key-section li {
     border: 1px solid black;
 }
 
