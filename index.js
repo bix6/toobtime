@@ -305,6 +305,18 @@ function checkSpots() {
     return findLastChecked();
 }
 
+// Clear error message
+function clearError() {
+    $(".error-p").empty();
+    $(".error-p").addClass("hidden");
+}
+
+// Display error message
+function displayError(errorMessage) {
+    $(".error-p").text(errorMessage);
+    $(".error-p").removeClass("hidden");
+}
+
 // Ensure user selects at least one required checkbox
 // Thank you: https://stackoverflow.com/questions/6218494/using-the-html5-required-attribute-for-a-group-of-checkboxes
 function validateUserInput() {
@@ -317,7 +329,9 @@ function formSubmitted() {
         event.preventDefault();
 
         if (validateUserInput()) {
+            clearError(); // clear error if it exists
             tableListGlobal = []; // reset the table list
+
             const lastSpotIndex = checkSpots(); 
 
             const startIndex = getStartIndex();
@@ -326,8 +340,7 @@ function formSubmitted() {
             fetchSurflineData(startIndex, lastSpotIndex);
         }
         else {
-            // TODO handle this without an alert?
-            alert('Please select a valid surf spot.');
+            displayError("Please select a valid spot.");
         }
     })
 }

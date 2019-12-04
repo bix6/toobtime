@@ -1,0 +1,16 @@
+html {
+    box-sizing: border-box;
+    font-size: 16px; /* TODO change to 10 */
+}
+
+*, *:before, *:after {
+    box-sizing: inherit;
+}
+
+.hidden {
+    display: none;
+}
+
+.error-p {
+    color: red;
+}
