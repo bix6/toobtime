@@ -82,6 +82,22 @@ function createTableString(data, keyNameData) {
     return tableString += "</tr>";
 }
 
+// Check the current fetch index
+// Stop and display data if all spot's have been retrieved
+// Othwerise, recursively fetch the next spot's data
+function checkFetchIndex(startIndex, lastSpotIndex, curIndex) {
+    if (curIndex === lastSpotIndex || curIndex === spotsGlobal.length) {
+        console.log("final");
+        appendTableRows();
+        displayTable();
+        displayScore();
+    }
+    else {
+        console.log(curIndex);
+        fetchSurfData(startIndex, lastSpotIndex, ++curIndex);
+    }
+}
+
 // Store the fetched data
 function storeData(index, data, keyNameData, keyNameString) {
     spotsGlobal[index][keyNameData] = data;
@@ -156,39 +172,20 @@ function fetchSurfData(startIndex, lastSpotIndex, curIndex) {
         const URL_WAVE = ENDPOINT_WAVE + "?" + PARAM_STRING;
         const URL_WIND = ENDPOINT_WIND + "?" + PARAM_STRING;
 
-        // TODO better way to handle unusedVar
         fetch(URL_WAVE)
         .then(response => checkFetchResponse(response))
         .then(responseJson => extractData(responseJson, startIndex, "waveData"))
         .then(waveData => storeData(curIndex, waveData, "waveData", "waveString"))
-        .then(unusedVar => { 
+        .then(function() { 
             fetch(URL_WIND)
             .then(response => checkFetchResponse(response))
             .then(responseJson => extractData(responseJson, startIndex, "windData"))
             .then(windData => storeData(curIndex, windData, "windData", "windString"))
-            .then(unusedVar => {
-                // TODO move to function
-                if (curIndex === lastSpotIndex || curIndex === spotsGlobal.length) {
-                    console.log("final");
-                    appendTableRows();
-                    displayTable();
-                    displayScore();
-                }
-                else {
-                    console.log(curIndex);
-                    fetchSurfData(startIndex, lastSpotIndex, ++curIndex);
-                }
-            })
+            .then(checkFetchIndex(startIndex, lastSpotIndex, curIndex)) // recursively search until all data retrieved
             .catch(error => displayError(error.message));
         })
         .catch(error => displayError(error.message));
     }
-
-    // Wait to retrieve all data
-    // TODO Otherwise I'd need to recursively call my fetches
-    // window.setTimeout(appendTableRows, 1000);
-    // window.setTimeout(displayTable, 1000);
-    // window.setTimeout(displayScore, 1000);
 }
 
 // Create the time string and push it to the table
@@ -374,15 +371,15 @@ function fetchBuoyData() {
     fetch(URL_WATER_LEVEL)
     .then(response => checkFetchResponse(response))
     .then(responseJson => storeBuoyData(responseJson, "water_level"))
-    .then(unusedVar => {
+    .then(function() {
         fetch(URL_WATER_TEMPERATURE)
         .then(response => checkFetchResponse(response))
         .then(responseJson => storeBuoyData(responseJson, "water_temperature"))
-        .then(unusedVar => {
+        .then(function() {
             fetch(URL_AIR_PRESSURE)
             .then(response => checkFetchResponse(response))
             .then(responseJson => storeBuoyData(responseJson, "air_pressure"))
-            .then(unusedVar => displayBuoyData())
+            .then(displayBuoyData())
             .catch(error => displayError(error.message));  
         })
         .catch(error => displayError(error.message)); 
