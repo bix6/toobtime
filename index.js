@@ -181,7 +181,7 @@ function fetchSurfData(startIndex, lastSpotIndex, curIndex) {
             .then(response => checkFetchResponse(response))
             .then(responseJson => extractData(responseJson, startIndex, "windData"))
             .then(windData => storeData(curIndex, windData, "windData", "windString"))
-            .then(checkFetchIndex(startIndex, lastSpotIndex, curIndex)) // recursively search until all data retrieved
+            .then(function() {checkFetchIndex(startIndex, lastSpotIndex, curIndex)}) // recursively search until all data retrieved
             .catch(error => displayError(error.message));
         })
         .catch(error => displayError(error.message));
@@ -379,7 +379,7 @@ function fetchBuoyData() {
             fetch(URL_AIR_PRESSURE)
             .then(response => checkFetchResponse(response))
             .then(responseJson => storeBuoyData(responseJson, "air_pressure"))
-            .then(displayBuoyData())
+            .then(function() {displayBuoyData()})
             .catch(error => displayError(error.message));  
         })
         .catch(error => displayError(error.message)); 
