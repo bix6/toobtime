@@ -4,6 +4,7 @@ let spotsGlobal = null;
 let tableListGlobal = [];
 const MAX_COLS_GLOBAL = 6;
 
+// Display the main table
 function displayTable () {
     $(".display-table").empty();
     $(".display-table").html(tableListGlobal.join(""));
@@ -19,10 +20,11 @@ function appendTableRows() {
             tableListGlobal.push(spotsGlobal[i].windString);
         }
     }
+    // TODO delete log
     console.log(tableListGlobal);
 }
 
-// Updates the color score
+// Update the color score
 function updateScore(index, data) {
     let score = 0;
 
@@ -38,7 +40,7 @@ function updateScore(index, data) {
     }
 }
 
-// Create a table string with the fetched surfline data
+// Create a table string with the fetched data
 function createTableString(data, keyNameData) {
     let tableString = "<tr>";
 
@@ -61,14 +63,14 @@ function createTableString(data, keyNameData) {
     return tableString += "</tr>";
 }
 
-// store the fetched surfline data
+// Store the fetched data
 function storeData(index, data, keyNameData, keyNameString) {
     spotsGlobal[index][keyNameData] = data;
     spotsGlobal[index][keyNameString] = createTableString(data, keyNameData);
     updateScore(index, data);
 }
 
-// get the data from the response payload
+// Get the data from the response payload
 function getData(responseJson, startIndex, keyNameData) {
     let data = [];
 
@@ -114,7 +116,7 @@ function formatParams(params) {
 }
 
 // Fetch wave data from Surfline
-function fetchSurflineData(startIndex) {
+function fetchSurflineData(startIndex, lastSpotIndex) {
     const ENDPOINT_WAVE = "https://services.surfline.com/kbyg/spots/forecasts/wave";
     const ENDPOINT_WIND = "https://services.surfline.com/kbyg/spots/forecasts/wind";
 
@@ -145,6 +147,12 @@ function fetchSurflineData(startIndex) {
                 .then(response => checkFetchResponse(response))
                 .then(responseJson => getData(responseJson, startIndex, "windData"))
                 .then(windData => storeData(i, windData, "windData", "windString"))
+                .then(unusedVar => {
+                    if (i === lastSpotIndex) {
+                        appendTableRows();
+                        displayTable();
+                    }
+                })
                 .catch(error => alert(error.message)) // TODO error handling
             })
             .catch(error => alert(error.message)); // TODO error handling
@@ -152,12 +160,12 @@ function fetchSurflineData(startIndex) {
     }
 
     // TODO how can I do this without a timer?
-    window.setTimeout(appendTableRows, 500);
-    window.setTimeout(displayTable, 500);
+    // window.setTimeout(appendTableRows, 500);
+    // window.setTimeout(displayTable, 500);
 }
 
-// Create the time row for the table
-function createTimeRow(startIndex) {
+// Create the time string and push it to the table
+function createTimeString(startIndex) {
     let timeString = "<tr><th>Time</th>";
     let dateNow = new Date();
 
@@ -176,7 +184,20 @@ function getStartIndex() {
     return dateNow.getHours() === 0 ? 0 : dateNow.getHours() - 1;
 }
 
-// Check which spots are checked and store information
+// Find the index of the last checked spot
+function findLastChecked() {
+    let index = 0;
+
+    for (let i = 0; i < spotsGlobal.length; i++) {
+        if (spotsGlobal[i].checked) {
+            index = i;
+        }
+    }
+
+    return index;
+}
+
+// Check which spots are checked, store information in spotsGlobal and return findLastChecked
 function checkSpots() {
     spotsGlobal = [
         {
@@ -280,6 +301,8 @@ function checkSpots() {
             checked: $("#hook-cb").is(":checked")
         },
     ];
+
+    return findLastChecked();
 }
 
 // Ensure user selects at least one required checkbox
@@ -294,12 +317,13 @@ function formSubmitted() {
         event.preventDefault();
 
         if (validateUserInput()) {
-            checkSpots();
+            tableListGlobal = []; // reset the table list
+            const lastSpotIndex = checkSpots(); 
 
             const startIndex = getStartIndex();
-            createTimeRow(startIndex);
+            createTimeString(startIndex);
 
-            fetchSurflineData(startIndex);
+            fetchSurflineData(startIndex, lastSpotIndex);
         }
         else {
             // TODO handle this without an alert?
