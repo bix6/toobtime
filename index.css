@@ -1,6 +1,6 @@
 html {
     box-sizing: border-box;
-    font-size: 16px; /* TODO change to 10 */
+    font-size: 10px; 
 }
 
 *, *:before, *:after {

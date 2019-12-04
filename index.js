@@ -36,7 +36,7 @@ function displayTable () {
 function appendTableRows() {
     for (let i = 0; i < spotsGlobal.length; i++) {
         if (spotsGlobal[i].checked) {
-            tableListGlobal.push(`<tr class="name-row"><th>${spotsGlobal[i].name}</th></tr>`);
+            tableListGlobal.push(`<tr class="name-tr"><th>${spotsGlobal[i].name}</th></tr>`);
             tableListGlobal.push(spotsGlobal[i].waveString);
             tableListGlobal.push(spotsGlobal[i].windString);
         }
@@ -61,7 +61,7 @@ function updateScore(index, data) {
 
 // Create a table string with the fetched data
 function createTableString(data, keyNameData) {
-    let tableString = "<tr>";
+    let tableString = `<tr class="data-tr">`;
 
     for (let i = 0; i < data.length; i++) {
         if (keyNameData === "waveData") {
@@ -181,7 +181,7 @@ function fetchSurfData(startIndex, lastSpotIndex, curIndex) {
             .then(response => checkFetchResponse(response))
             .then(responseJson => extractData(responseJson, startIndex, "windData"))
             .then(windData => storeData(curIndex, windData, "windData", "windString"))
-            .then(function() {checkFetchIndex(startIndex, lastSpotIndex, curIndex)}) // recursively search until all data retrieved
+            .then(function() {checkFetchIndex(startIndex, lastSpotIndex, curIndex)}) // recursively fetch
             .catch(error => displayError(error.message));
         })
         .catch(error => displayError(error.message));
@@ -190,12 +190,12 @@ function fetchSurfData(startIndex, lastSpotIndex, curIndex) {
 
 // Create the time string and push it to the table
 function createTimeString(startIndex) {
-    let timeString = "<tr><th>Time</th>";
+    let timeString = `<tr class="time-tr"><th>Time</th>`;
     let dateNow = new Date();
 
     for (let i = startIndex; i < startIndex + MAX_COLS_GLOBAL; i++) {
         dateNow.setHours(i);
-        timeString += `<th data-order="-1">${dateNow.toLocaleString('default', {hour: "numeric"})}</th>`;
+        timeString += `<th>${dateNow.toLocaleString('default', {hour: "numeric"})}</th>`;
     }
 
     timeString += "</tr>";
@@ -400,7 +400,6 @@ function displayError(errorMessage) {
 }
 
 // Ensure user selects at least one required checkbox
-// Thank you: https://stackoverflow.com/questions/6218494/using-the-html5-required-attribute-for-a-group-of-checkboxes
 function validateUserInput() {
     return ($(".required-cb :checkbox:checked").length > 0);
 }
@@ -436,7 +435,6 @@ function formSubmitted() {
 }
 
 // Toggle nested checkboxes when parent is clicked
-// Thank you: https://stackoverflow.com/questions/14853568/jquery-selecting-all-child-checkboxes
 function toggleCheckbox() {
     $("input[type='checkbox']").change(function () {
         $(this).siblings('ul')
