@@ -153,9 +153,9 @@ function fetchSurflineData(startIndex, lastSpotIndex) {
                         displayTable();
                     }
                 })
-                .catch(error => alert(error.message)) // TODO error handling
+                .catch(error => displayError(error.message))
             })
-            .catch(error => alert(error.message)); // TODO error handling
+            .catch(error => displayError(error.message));
         }
     }
 
