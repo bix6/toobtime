@@ -41,8 +41,6 @@ function appendTableRows() {
             tableListGlobal.push(spotsGlobal[i].windString);
         }
     }
-    // TODO delete log
-    console.log(tableListGlobal);
 }
 
 // Update the color score
@@ -137,7 +135,7 @@ function formatParams(params) {
 }
 
 // Fetch surf data from Surfline
-function fetchSurfData(startIndex) {
+function fetchSurfData(startIndex, lastSpotIndex, curIndex) {
     const ENDPOINT_WAVE = "https://services.surfline.com/kbyg/spots/forecasts/wave";
     const ENDPOINT_WIND = "https://services.surfline.com/kbyg/spots/forecasts/wind";
 
@@ -149,36 +147,48 @@ function fetchSurfData(startIndex) {
         // "accesstoken": "string" // for premium data
     };
 
-    // Loop through all spots. If checked, fetch wave and wind data.
-    for (let i = 0; i < spotsGlobal.length; i++) {
-        if (spotsGlobal[i].checked) {
-            params.spotId = spotsGlobal[i].id;
-            
-            const PARAM_STRING = formatParams(params);
+    // If spot checked, fetch wave and wind data.
+    if (spotsGlobal[curIndex].checked) {
+        params.spotId = spotsGlobal[curIndex].id;
         
-            const URL_WAVE = ENDPOINT_WAVE + "?" + PARAM_STRING;
-            const URL_WIND = ENDPOINT_WIND + "?" + PARAM_STRING;
+        const PARAM_STRING = formatParams(params);
+    
+        const URL_WAVE = ENDPOINT_WAVE + "?" + PARAM_STRING;
+        const URL_WIND = ENDPOINT_WIND + "?" + PARAM_STRING;
 
-            fetch(URL_WAVE)
+        // TODO better way to handle unusedVar
+        fetch(URL_WAVE)
+        .then(response => checkFetchResponse(response))
+        .then(responseJson => extractData(responseJson, startIndex, "waveData"))
+        .then(waveData => storeData(curIndex, waveData, "waveData", "waveString"))
+        .then(unusedVar => { 
+            fetch(URL_WIND)
             .then(response => checkFetchResponse(response))
-            .then(responseJson => extractData(responseJson, startIndex, "waveData"))
-            .then(waveData => storeData(i, waveData, "waveData", "waveString"))
-            .then(unusedVar => { 
-                fetch(URL_WIND)
-                .then(response => checkFetchResponse(response))
-                .then(responseJson => extractData(responseJson, startIndex, "windData"))
-                .then(windData => storeData(i, windData, "windData", "windString"))
-                .catch(error => displayError(error.message));
+            .then(responseJson => extractData(responseJson, startIndex, "windData"))
+            .then(windData => storeData(curIndex, windData, "windData", "windString"))
+            .then(unusedVar => {
+                // TODO move to function
+                if (curIndex === lastSpotIndex || curIndex === spotsGlobal.length) {
+                    console.log("final");
+                    appendTableRows();
+                    displayTable();
+                    displayScore();
+                }
+                else {
+                    console.log(curIndex);
+                    fetchSurfData(startIndex, lastSpotIndex, ++curIndex);
+                }
             })
             .catch(error => displayError(error.message));
-        }
+        })
+        .catch(error => displayError(error.message));
     }
 
     // Wait to retrieve all data
     // TODO Otherwise I'd need to recursively call my fetches
-    window.setTimeout(appendTableRows, 1000);
-    window.setTimeout(displayTable, 1000);
-    window.setTimeout(displayScore, 1000);
+    // window.setTimeout(appendTableRows, 1000);
+    // window.setTimeout(displayTable, 1000);
+    // window.setTimeout(displayScore, 1000);
 }
 
 // Create the time string and push it to the table
@@ -199,6 +209,19 @@ function createTimeString(startIndex) {
 function getStartIndex() {
     let dateNow = new Date(); 
     return dateNow.getHours() === 0 ? 0 : dateNow.getHours() - 1;
+}
+
+// Find the index of the last checked spot
+function findLastChecked() {
+    let index = 0;
+
+    for (let i = 0; i < spotsGlobal.length; i++) {
+        if (spotsGlobal[i].checked) {
+            index = i;
+        }
+    }
+
+    return index;
 }
 
 // Check which spots are checked and store information in spotsGlobal
@@ -305,6 +328,8 @@ function checkSpots() {
             checked: $("#hook-cb").is(":checked")
         },
     ];
+
+    return findLastChecked();
 }
 
 // Display the buoy data
@@ -315,13 +340,12 @@ function displayBuoyData() {
         `<li><span class="buoy-span">Water Temp:</span> ${buoyDataGlobal.water_temperature} &#176;F</li>` +
         `<li><span class="buoy-span">Barometric Pressure:</span> ${buoyDataGlobal.air_pressure} mb</li>`;
 
-    $(".buoy-ul").append(buoyContent);
+    $(".buoy-ul").html(buoyContent);
 }
 
 // Store the fetched buoy data from NOAA
 function storeBuoyData(responseJson, name) {
-    buoyDataGlobal[name] = Math.round(responseJson.data[0].v * 10) / 10;
-    console.log(buoyDataGlobal);
+    buoyDataGlobal[name] = Math.round(responseJson.data[0].v * 10) / 10; // round to .1s
 }
 
 // Fetch buoy data from NOAA
@@ -401,12 +425,12 @@ function formSubmitted() {
 
             fetchBuoyData();
 
-            checkSpots(); 
+            const lastSpotindex = checkSpots(); 
 
             const startIndex = getStartIndex();
             createTimeString(startIndex);
 
-            fetchSurfData(startIndex);
+            fetchSurfData(startIndex, lastSpotindex, 0); // curIndex = 0
         }
         else {
             displayError("Please select a valid spot.");
