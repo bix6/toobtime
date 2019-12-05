@@ -13,7 +13,7 @@ body {
     margin: 0 auto;
     padding: 0;
     text-align: center;
-    max-width: 748px;
+    max-width: 700px;
     font-family: 'Open Sans', sans-serif;
 }
 
@@ -135,6 +135,21 @@ main ul, main ol {
     display: inline-block;
 }
 
+/* Suboptimal */
+.score-0 {
+    background-color: white;
+}
+
+/* Good */
+.score-1 {
+    background-color: lightskyblue;
+}
+
+/* Optimal */
+.score-2 {
+    background-color: orange;
+}
+
 .overflow {
     overflow-x: auto;
 }
@@ -161,42 +176,91 @@ th {
     text-align: left;
 }
 
-
-
 /* Media Queries */
 /* Tablet */
 @media screen and (min-width: 768px) {
     body {
         margin: 1rem auto;
     }
+    h1 {
+        font-size: 3.4rem;
+    }
+    h2 {
+        font-size: 2.4rem;
+    }
+    h3 {
+        font-size: 2.2rem;
+    }
+    p {
+        font-size: 2.2rem;
+    }
+    .user-input-form {
+        font-size: 1.8rem;
+    }
+    .user-input-submit, .new-search-button {
+        font-size: 2.2rem;
+    }
+    main {
+        font-size: 1.6rem;
+    }
 }
 
-
-
-
-
-
-
-
-.color-key-section li {
-    border: 1px solid black;
+/* Laptop */
+@media screen and (min-width: 992px) {
+    body {
+        max-width: 800px;
+    }
+    h1, h2, h3 {
+        margin: 3rem 0;
+    }
+    h1 {
+        font-size: 3.6rem;
+    }
+    h2 {
+        font-size: 2.6rem;
+    }
+    h3 {
+        font-size: 2.4rem;
+        margin-bottom: 1rem;
+    }
+    p {
+        font-size: 2.4rem;
+    }
+    .user-input-form {
+        font-size: 2rem;
+    }
+    .user-input-submit, .new-search-button {
+        font-size: 2.4rem;
+    }
+    main {
+        font-size: 1.8rem;
+    }
+    th, td {
+        padding: 1rem;
+    }
 }
 
-/* Suboptimal */
-.score-0 {
-    background-color: white;
-}
-
-/* Good */
-.score-1 {
-    background-color: lightskyblue;
-}
-
-/* Optimal */
-.score-2 {
-    background-color: orange;
-}
-
-.name-row th{
-    border: 1px solid black;
+/* Desktop */
+@media screen and (min-width: 1200px) {
+    h1 {
+        font-size: 3.8rem;
+    }
+    h2 {
+        font-size: 2.8rem;
+    }
+    h3 {
+        font-size: 2.6rem;
+    }
+    p {
+        font-size: 2.6rem;
+    }
+    .user-input-form {
+        font-size: 2.2rem;
+    }
+    .user-input-submit, .new-search-button {
+        font-size: 2.6rem;
+    }
+    main {
+        font-size: 2rem;
+    }
 }
