@@ -235,6 +235,16 @@ th {
     main {
         font-size: 1.8rem;
     }
+    .buoy-section li {
+        margin: 1rem 0;
+    }
+    .score-section > ol, .color-key-section > ul {
+        display: flex;
+        justify-content: center;
+    }
+    .score-section > ol > li, .color-key-section > ul > li {
+        margin: 0 1rem;
+    }
     th, td {
         padding: 1rem;
     }
