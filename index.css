@@ -14,6 +14,7 @@ body {
     padding: 0;
     text-align: center;
     max-width: 748px;
+    font-family: 'Open Sans', sans-serif;
 }
 
 h1, h2, h3 {
@@ -35,7 +36,7 @@ h2 {
 h3 {
     font-size: 1.8rem;
     color: darkblue;
-    margin: 1rem 0;
+    margin-bottom: .5rem;
     text-decoration: underline;
 }
 
@@ -55,7 +56,8 @@ input[type=checkbox] {
 }
 
 p {
-    margin: 1rem 0;
+    font-size: 2rem;
+    margin: 2rem 0;
 }
 
 .hidden {
@@ -64,13 +66,12 @@ p {
 
 /* user-input-section */
 .user-input-section {
-    padding: 1rem;
+    padding: 0 1rem;
 }
 
 .user-input-form {
     text-align: left;
     font-size: 1.6rem;
-    font-family: 'Open Sans', sans-serif;
     max-width: 300px;
     margin: 1rem auto;
 }
@@ -92,10 +93,10 @@ p {
     text-align: center;
 }
 
-.user-input-submit {
+.user-input-submit, .new-search-button {
     background-color: white;
     color: orange;
-    font-size: 2.2rem;
+    font-size: 2rem;
     margin: 2rem 0 1rem;
     border: 3px solid darkblue;
     padding: 1rem;
@@ -103,35 +104,24 @@ p {
     font-weight: 700;
 }
 
-/* error-p */
+/* Status Ps */
 .error-p {
     color: red;
-    font-size: 2rem;
-    margin: 2rem 0;
-    font-family: 'Open Sans', sans-serif;
+}
+
+.loading-p {
+    color: orange;
 }
 
 /* main */
 main {
-    font-family: 'Open Sans', sans-serif;
     padding: 0 .5rem;
+    font-size: 1.4rem;
 }
 
 main ul, main ol {
     padding: 0 1rem;
-    font-size: 1.4rem;
     color: rgb(41, 39, 70);
-}
-
-.new-search-button {
-    display: block;
-    width: 100%;
-    background-color: white;
-    color: orange;
-    border: 5px solid darkblue;
-    font-size: 2.2rem;
-    padding: 1rem;
-    font-weight: 700;
 }
 
 .score-section h3{
@@ -140,7 +130,6 @@ main ul, main ol {
 
 .color-key-section > ul > li {
     border: 2px solid darkblue;
-    border-radius: 10px;
     padding: .5rem 0;
     width: 50%;
     display: inline-block;
@@ -154,7 +143,6 @@ main ul, main ol {
     border: 3px solid darkblue;
     margin: 0 auto 2rem;
     border-collapse: collapse;
-    font-size: 1.4rem;
 }
 
 th, td {

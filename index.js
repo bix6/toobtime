@@ -1,17 +1,12 @@
 "use strict";
 
-
-// TODO loading indicator
-
-
-
 let spotsGlobal = null;
 let tableListGlobal = [];
 let buoyDataGlobal = {};
 const MAX_COLS_GLOBAL = 6;
 
-// Display the score
-function displayScore () {
+// Calculate the score and append to score list
+function calculateScore () {
     $(".score-ol").empty();
     let spotsLocal = spotsGlobal.slice();
 
@@ -30,11 +25,14 @@ function displayScore () {
     }
 }
 
-// Display the main table
-function displayTable () {
+// Display the main content
+function displayMain () {
     $(".spots-table").empty();
     $(".spots-table").html(tableListGlobal.join(""));
+    $(".loading-p").addClass("hidden");
     $("main").removeClass("hidden");
+    $(".user-input-section").addClass("hidden");
+    window.scrollTo(0, 0);
 }
 
 // Append the spot strings to the global table
@@ -102,8 +100,8 @@ function findNextCheckedIndex(curIndex) {
 function checkFetchIndex(startIndex, lastSpotIndex, curIndex) {
     if (curIndex === lastSpotIndex || curIndex === spotsGlobal.length) {
         appendTableRows();
-        displayTable();
-        displayScore();
+        calculateScore();
+        displayMain();
     }
     else {
         curIndex = findNextCheckedIndex(curIndex + 1);
@@ -417,6 +415,8 @@ function validateUserInput() {
 function newSearch() {
     $(".new-search-button").on("click", function(event) {
        $("main").addClass("hidden"); 
+       $(".user-input-section").removeClass("hidden");
+       window.scrollTo(0, 0);
     })
 }
 
@@ -428,6 +428,8 @@ function formSubmitted() {
         if (validateUserInput()) {
             clearError(); // clear error if it exists
             tableListGlobal = []; // reset the table list
+
+            $(".loading-p").removeClass("hidden");
 
             fetchBuoyData();
 
