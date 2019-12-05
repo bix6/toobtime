@@ -443,6 +443,7 @@ function formSubmitted() {
         else {
             displayError("Please select a valid spot.");
         }
+        window.scrollTo(0, document.body.scrollHeight);
     })
 }
 
