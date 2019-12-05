@@ -111,13 +111,13 @@ p {
     font-family: 'Open Sans', sans-serif;
 }
 
-/* display-main */
-.display-main {
-    border: 5px solid Green;
+/* main */
+main {
     font-family: 'Open Sans', sans-serif;
+    padding: 0 .5rem;
 }
 
-.display-main ul, .display-main ol {
+main ul, main ol {
     padding: 0 1rem;
     font-size: 1.4rem;
     color: rgb(41, 39, 70);
@@ -138,9 +138,7 @@ p {
     color: orange;
 }
 
-
-
-.color-key-section ul > li {
+.color-key-section > ul > li {
     border: 2px solid darkblue;
     border-radius: 10px;
     padding: .5rem 0;
@@ -148,6 +146,32 @@ p {
     display: inline-block;
 }
 
+.overflow {
+    overflow-x: auto;
+}
+
+.spots-table {
+    border: 3px solid darkblue;
+    margin: 0 auto 2rem;
+    border-collapse: collapse;
+    font-size: 1.4rem;
+}
+
+th, td {
+    border: 2px solid darkblue;
+    padding: .5rem;
+    text-align: center;
+}
+
+th {
+    color: darkblue;
+}
+
+.name-tr th {
+    color: white;
+    background-color: darkblue;
+    text-align: left;
+}
 
 
 

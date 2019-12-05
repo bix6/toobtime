@@ -32,16 +32,16 @@ function displayScore () {
 
 // Display the main table
 function displayTable () {
-    $(".display-table").empty();
-    $(".display-table").html(tableListGlobal.join(""));
-    $(".display-main").removeClass("hidden");
+    $(".spots-table").empty();
+    $(".spots-table").html(tableListGlobal.join(""));
+    $("main").removeClass("hidden");
 }
 
 // Append the spot strings to the global table
 function appendTableRows() {
     for (let i = 0; i < spotsGlobal.length; i++) {
         if (spotsGlobal[i].checked) {
-            tableListGlobal.push(`<tr class="name-tr"><th>${spotsGlobal[i].name}</th></tr>`);
+            tableListGlobal.push(`<tr class="name-tr"><th  colspan="${MAX_COLS_GLOBAL + 1}">${spotsGlobal[i].name}</th></tr>`);
             tableListGlobal.push(spotsGlobal[i].waveString);
             tableListGlobal.push(spotsGlobal[i].windString);
         }
