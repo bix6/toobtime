@@ -1,17 +1,18 @@
-# Toobtime
-
-## It's Toobtime!
+# It's Toobtime!
+## Quickly Compare Your Favorite Surf Spots
 
 [Live Link](https://bix6.github.io/toobtime/)
 
 ### About
 
-Customizable surf report to quickly compare spots and locate the best waves with ease.
+Customizable surf report to compare spots and locate the best waves with ease.
 
 ### Technology
 
-HTML, CSS, JS, jQuery
+- Languages: HTML, CSS, JS, jQuery
+- APIs: NOAA, Surfline
 
 ### Screenshot
 
-TODO
+![Landing Page](screenshots/screenshot-1.png)
+![Results Page](screenshots/screenshot-2.png)
