@@ -51,7 +51,7 @@ function updateScore(index, data) {
     let score = 0;
 
     for (let i = 0; i < data.length; i++) {
-            score += data[i].score;
+        score += data[i].score;
     }
 
     if (spotsGlobal[index]["score"]) {
